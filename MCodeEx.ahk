@@ -6,8 +6,8 @@
 	}
 	if (!DllCall("crypt32\CryptStringToBinary", "str", mcodeString, "uint", 0, "uint", e, "ptr", 0, "uint*", s, "ptr", 0, "ptr", 0))
 		Throw Exception("Failed CryptStringToBinary: ErrorLevel:" . ErrorLevel . " A_LastError" . A_LastError)
-	p := DllCall("VirtualAlloc", "Ptr", 0, "UInt", s, "UInt", 0x3000, "UInt", 0x40)
-	DllCall("VirtualLock", "Ptr", p, "UInt", s)
+	p := DllCall("VirtualAlloc", "Ptr", 0, "Int", s, "Int", 0x3000, "Int", 0x40)
+	DllCall("VirtualLock", "Ptr", p, "Int", s)
 	
 	if (!DllCall("crypt32\CryptStringToBinary", "str", mcodeString, "uint", 0, "uint", e, "ptr", p, "uint*", s, "ptr", 0, "ptr", 0)) {
 		DllCall("GlobalFree", "ptr", p)
@@ -57,7 +57,7 @@
 		functions[each] += offset + p
 	}
 	
-	DllCall("FlushInstructionCache", "Ptr", DllCall("GetCurrentProcess"), "Ptr", p, "UInt", s)
+	DllCall("FlushInstructionCache", "Ptr", DllCall("GetCurrentProcess"), "Ptr", p, "Int", s)
 	
 	functions[""]   := p
 	functions["`t"] := s
