@@ -1,4 +1,4 @@
-﻿#Include MCodeEx.ahk
+﻿#Include %A_LineFile%/../MCodeEx.ahk
 
 ;matrix := new Matrix(width,  height)
 ;	creates a new instance of the matrix class with the specified height and width
@@ -77,14 +77,19 @@ class Matrix {
 		}
 	}
 	
-	;this._toString()
+	;this.toString()
 	;	turns the Matrix into a nicely looking string for display purposes
-	_toString() {
+	toString(fn := "") {
 		str := "|"
-		Loop % this.h {
+		if !(fn=="") {
+			if (fn.call(0.5) == "") {
+				throw exception("The function passed to toString needs to result in a new value for each number passed to it. The function returned nothing when 0.5 was passed.", -1)
+			}
+		}
+		While (A_Index<=this.h) {
 			y := A_Index
-			Loop % this.w {
-				str .= "`t" . this.values[A_Index, y] . "|"
+			While (A_Index<=this.w) {
+				str .= "`t" . ( (!(fn==""))?fn.Call(this.values[A_Index, y]):this.values[A_Index, y]) . "|"
 			}
 			str .= "`n|"
 		}
@@ -99,14 +104,14 @@ class Matrix {
 	;		all numbers that are generated with a specific seed will follow a fixed sequence
 	fillRandom(min := -1.0, max := 1.0, seed := "") {
 		if !(seed == "") {
-			Random, , %seed%
+			Random, , seed
 		}
 		rMin := min(min, max)
 		rMax := max(min, max)
-		Loop % this.w {
+		While (A_Index<=this.w) {
 			x := A_Index
-			Loop % this.h {
-				Random, var, %rMin%, %rMax%
+			While (A_Index<=this.h) {
+				Random, var, rMin, rMax
 				this.values[x, A_Index] := var
 			}
 		}
@@ -177,7 +182,52 @@ class Matrix {
 		} else if (outputMatrix.h != this.h || this.w != outputMatrix.w) {
 			throw exception("invalid width or height in parameter 2:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter2.size = [" . outputMatrix.w . ", " . outputMatrix.h . "]", -1)
 		}
-		DllCall(this.functionality.add, "Ptr", outputMatrix.ptr, "Ptr", inputMatrix.ptr, "Ptr", this.ptr, "UInt", this.w, "UInt", this.h, "Cdecl")
+		DllCall(this.functionality.add, "Ptr", outputMatrix.ptr, "Ptr", this.ptr, "Ptr", inputMatrix.ptr, "UInt", this.w, "UInt", this.h, "Cdecl")
+		if (ErrorLevel || A_LastError) {
+			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -1)
+		}
+		return outputMatrix
+	}
+	
+	;subtract(matrix)
+	;	subtracts the values of 2 matrices and puts the result into an output matrix
+	;	both matrices need to be equal in size
+	;	the outputMatrix parameter can be equal to either inputs
+	subtract(inputMatrix, outputMatrix := "") {
+		if !(inputMatrix.__Class == "Matrix") {
+			throw exception("invalid paramter expected a second matrix got: " inputMatrix . "instead", -1)
+		}
+		if (inputMatrix.h != this.h || this.w != inputMatrix.w) {
+			throw exception("invalid width or height in parameter 1:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]", -1)
+		}
+		if (outputMatrix == "") {
+			outputMatrix := new Matrix(this.w, this.h)
+		} else if !(outputMatrix.__Class == "Matrix"){
+			throw exception("invalid parameter expected an output matrix got: " . outputMatrix . "instead", -1)
+		} else if (outputMatrix.h != this.h || this.w != outputMatrix.w) {
+			throw exception("invalid width or height in parameter 2:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter2.size = [" . outputMatrix.w . ", " . outputMatrix.h . "]", -1)
+		}
+		DllCall(this.functionality.subtract, "Ptr", outputMatrix.ptr, "Ptr", this.ptr, "Ptr", inputMatrix.ptr, "UInt", this.w, "UInt", this.h, "Cdecl")
+		if (ErrorLevel || A_LastError) {
+			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -1)
+		}
+		return outputMatrix
+	}
+	
+	;multiplyByFactor(factor)
+	;	multiplies the values of this matrix by a factor and puts the result into an output matrix
+	;	the outputMatrix can be equal to the inputMatrix
+	multiplyByFactor(factor, outputMatrix := "") {
+		if !(factor~="s)^\d+\.?\d*$")
+			throw exception("invalid number in parameter 1: " . factor, -1)
+		if (outputMatrix == "") {
+			outputMatrix := new Matrix(this.w, this.h)
+		} else if !(outputMatrix.__Class == "Matrix"){
+			throw exception("invalid parameter expected an output matrix got: " . outputMatrix . "instead", -1)
+		} else if (outputMatrix.h != this.h || this.w != outputMatrix.w) {
+			throw exception("invalid width or height in parameter 2:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter2.size = [" . outputMatrix.w . ", " . outputMatrix.h . "]", -1)
+		}
+		DllCall(this.functionality.multiplyFactor, "Ptr", outputMatrix.ptr, "Ptr", this.ptr, "Double", factor, "UInt", this.w, "UInt", this.h, "Cdecl")
 		if (ErrorLevel || A_LastError) {
 			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -1)
 		}
@@ -204,7 +254,7 @@ class Matrix {
 		} else if (outputMatrix.h != this.h || this.w != outputMatrix.w) {
 			throw exception("invalid width or height in parameter 2:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter2.size = [" . outputMatrix.w . ", " . outputMatrix.h . "]", -1)
 		}
-		DllCall(this.functionality.multiplyValues, "Ptr", outputMatrix.ptr, "Ptr", inputMatrix.ptr, "Ptr", this.ptr, "UInt", this.w, "UInt", this.h, "Cdecl")
+		DllCall(this.functionality.multiplyValues, "Ptr", outputMatrix.ptr, "Ptr", this.ptr, "Ptr", inputMatrix.ptr, "UInt", this.w, "UInt", this.h, "Cdecl")
 		if (ErrorLevel || A_LastError) {
 			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -1)
 		}

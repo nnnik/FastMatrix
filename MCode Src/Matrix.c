@@ -26,6 +26,23 @@ void add(double* mOut, double* m1, double* m2, unsigned int w, unsigned int h) {
 	}
 }
 
+//subtracts the values of 2 matrices and puts the result into an output matrix
+//the output matrix can be any of the input matrices
+//all matrices need to have equal measurements
+void subtract(double* mOut, double* m1, double* m2, unsigned int w, unsigned int h) {
+	for (unsigned int i =0; i<w*h; i++) {
+		mOut[i] = m1[i]-m2[i];
+	}
+}
+
+//multiplies all values inside the matrix by a single factor
+//the output matrix can be the input matrix
+void multiplyFactor(double* mOut, double* mIn, double factor, unsigned int w, unsigned int h) {
+	for (unsigned int i =0; i<w*h; i++) {
+		mOut[i] = mIn[i]*factor;
+	}
+}
+
 //multiplies each value inside 2 matrices and puts the result into an output matrix
 //the output matrix can be any of the input matrices
 //all matrices need to have equal measurements
