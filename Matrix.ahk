@@ -299,7 +299,7 @@ class Matrix {
 		} else if !(outputMatrix.__Class == "Matrix"){
 			throw exception("invalid parameter expected an output matrix got: " . outputMatrix . "instead", -1)
 		} else if (outputMatrix.h != this.h || inputMatrix.w != outputMatrix.w) {
-			throw exception("invalid width or height in parameter 2:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]`nparameter2.size", -1)
+			throw exception("invalid width or height in parameter 2:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]`nparameter2.size = [" . outputMatrix.w . ", " . outputMatrix.h . "]", -1)
 		} else if (outputMatrix == this || outputMatrix == inputMatrix) {
 			throw exception("output to input not implemented", -1)
 		}
@@ -331,7 +331,7 @@ class Matrix {
 		} else if !(outputMatrix.__Class == "Matrix"){
 			throw exception("invalid parameter expected an output matrix got: " . outputMatrix . "instead", -1)
 		} else if (outputMatrix.h != this.w || inputMatrix.w != outputMatrix.w) {
-			throw exception("invalid width or height in parameter 2:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]`nparameter2.size", -1)
+			throw exception("invalid width or height in parameter 2:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]`nparameter2.size = [" . outputMatrix.w . ", " . outputMatrix.h . "]", -1)
 		} else if (outputMatrix == this || outputMatrix == inputMatrix) {
 			throw exception("output to input not implemented", -1)
 		}
@@ -351,7 +351,7 @@ class Matrix {
 		} else if !(outputMatrix.__Class == "Matrix"){
 			throw exception("invalid parameter expected an output matrix got: " . outputMatrix . "instead", -1)
 		} else if (outputMatrix.h != this.h || this.w != outputMatrix.w) {
-			throw exception("invalid width or height in parameter 2:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]`nparameter2.size", -1)
+			throw exception("invalid width or height in parameter 1:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]", -1)
 		} else if (outputMatrix == this) {
 			throw exception("output to input not implemented", -1)
 		}
