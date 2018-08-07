@@ -335,7 +335,7 @@ class Matrix {
 		} else if (outputMatrix == this || outputMatrix == inputMatrix) {
 			throw exception("output to input not implemented", -1)
 		}
-		DllCall(this.functionality.multiplyTransposed, "Ptr", outputMatrix.ptr, "Ptr", this.ptr, "Ptr", inputMatrix.ptr, "Int", this.h, "Int", inputMatrix.w, "Int",  this.w, "Cdecl")
+		DllCall(this.functionality.multiplyTransposed, "Ptr", outputMatrix.ptr, "Ptr", this.ptr, "Ptr", inputMatrix.ptr, "Int", this.h, "Int", this.w, "Int", inputMatrix.w, "Cdecl")
 		if (ErrorLevel || A_LastError) {
 			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -1)
 		}
