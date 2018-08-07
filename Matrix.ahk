@@ -345,9 +345,9 @@ class Matrix {
 	;tranpose()
 	;	transposes the matrix
 	;	the outputMatrix cannot be equal to this
-	transpose(outputMatrix) {
+	transpose(outputMatrix := "") {
 		if (outputMatrix == "") {
-			outputMatrix := new Matrix(this.w, this.h)
+			outputMatrix := new Matrix(this.h, this.w)
 		} else if !(outputMatrix.__Class == "Matrix"){
 			throw exception("invalid parameter expected an output matrix got: " . outputMatrix . "instead", -1)
 		} else if (outputMatrix.h != this.h || this.w != outputMatrix.w) {
