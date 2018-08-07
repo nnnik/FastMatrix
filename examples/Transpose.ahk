@@ -29,5 +29,5 @@ m3String := m3.ToString(func("Round"))
 m4 := m3.transpose() ;transpose the matrix m3
 m4String := m4.ToString(func("Round")) ;call the .ToString method to turn the matrix m4 into a string
 
-Msgbox % "create a matrix m with the size 3, 3 `n" . m3String
+Msgbox % "create a matrix m with the size 4, 2 `n" . m3String
 . "`n`ntranspose the matrix:`n" . m4String
