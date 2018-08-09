@@ -1,14 +1,12 @@
 double (*exp2)(double)  = 0;		//the exp function of the MSVCRT.dll
 double (*sqrt2)(double) = 0;		//the sqrt function of the MSVCRT.dll
-double (*pow2)(double,double)  = 0;	//the pow function of the MSVCRT.dll
 
 //needs to b called when initializing the library
 //links against the functions mentioned above
 //they can be found in msvcrt.dll
-void link(double (*pexp)(double), double (*psqrt)(double), double (*ppow)(double)) {
+void link(double (*pexp)(double), double (*psqrt)(double)) {
 	exp2  = pexp;
 	sqrt2 = psqrt;
-	pow2  = ppow;
 }
 
 //calculate the sigmoid of the values of the matrix mIn and put them into mOut
@@ -98,11 +96,11 @@ void multiplyTransposed(double* mOut, double* m1, double* m2, int h, int w1, int
 //the parameter h1 describes the height of m1 and the height of mOut
 //the parameter h2 describes the height of m2 and mOut
 void multiplyTransposed2(double* mOut, double* m1, double* m2, int w, int h1, int h2) {
-	for (int x=0; x<h1; x++) {
-		for (int y=0; y<h2; y++) {
+	for (int x=0; x<h2; x++) {
+		for (int y=0; y<h1; y++) {
 			double tmp = 0;
 			for (int i=0; i<w; i++) {
-				tmp += m1[i*h1+x]*m2[i*h2+y];
+				tmp += m1[i*h1+y]*m2[i*h2+x];
 			}
 			mOut[x*h1+y] = tmp;
 		}

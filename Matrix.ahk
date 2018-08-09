@@ -26,8 +26,7 @@ class Matrix {
 		hDLL := DllCall("LoadLibrary", "Str", "msvcrt.dll", "Ptr")
 		exp2  := DllCall("GetProcAddress", "Ptr", hDLL, "AStr", "exp", "Ptr")
 		sqrt2 := DllCall("GetProcAddress", "Ptr", hDLL, "AStr", "sqrt", "Ptr")
-		pow2  := DllCall("GetProcAddress", "Ptr", hDLL, "AStr", "pow", "Ptr")
-		DllCall(this.functionality.link, "Ptr", exp2, "Ptr", sqrt2, "Ptr", pow2, "Cdecl")
+		DllCall(this.functionality.link, "Ptr", exp2, "Ptr", sqrt2, "Cdecl")
 		if (ErrorLevel || A_LastError) {
 			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError)
 		}
@@ -90,14 +89,14 @@ class Matrix {
 	toString(fn := "") {
 		str := "|"
 		if !(fn=="") {
-			if (fn.call(0.5) == "") {
+			if (%fn%(0.5) == "") {
 				throw exception("The function passed to toString needs to result in a new value for each number passed to it. The function returned nothing when 0.5 was passed.", -1)
 			}
 		}
 		While (A_Index<=this.h) {
 			y := A_Index
 			While (A_Index<=this.w) {
-				str .= "`t" . ( (!(fn==""))?fn.Call(this.values[A_Index, y]):this.values[A_Index, y]) . "|"
+				str .= "`t" . ( (!(fn==""))?%fn%(this.values[A_Index, y]):this.values[A_Index, y]) . "|"
 			}
 			str .= "`n|"
 		}
