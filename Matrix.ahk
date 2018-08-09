@@ -12,35 +12,25 @@ class Matrix {
 	w		:= 0
 	h		:= 0
 	
-	;a vector simply is a Matrix with a width of 1
-	class Vector extends Matrix {
-		
-		__New(h := "") { ;since w == 1 for vectors
-			if !(h ~= "s)^[1-9]\d*$") {
-				throw exception("invalid size value: " . h, -1)
-			}
-			base.__New(1, h)
-			this.__Class := "Matrix"
-		}
-	}
-	
-	;calculates a matrix that represents a rotation in the 2 dimensional plane.
-	class 2DRotationMatrix extends Matrix {
-		__New(degrees := "") {
-			if !(degrees ~= "s)^\d+\.?\d*$") {
-				throw exception("invalide degree value: " . degrees, -1)
-			}
-			base.__New(2, 2)
-			this.values[2, 2] := this.values[1, 1] := cos(degrees)
-			this.values[1, 2] := -this.values[2, 1] := -sin(degrees)
-			this.__Class := "Matrix"
-		}
-	}
-	
 	;create a new matrix
 	;at the moment it's just resizing
 	__New(w := "", h := "") {
+		this._init()
 		this.resize(w, h, true)
+	}
+	
+	_init() {
+		static init := 0
+		if init
+			return
+		hDLL := DllCall("LoadLibrary", "Str", "msvcrt.dll", "Ptr")
+		exp2  := DllCall("GetProcAddress", "Ptr", hDLL, "AStr", "exp", "Ptr")
+		sqrt2 := DllCall("GetProcAddress", "Ptr", hDLL, "AStr", "sqrt", "Ptr")
+		pow2  := DllCall("GetProcAddress", "Ptr", hDLL, "AStr", "pow", "Ptr")
+		DllCall(this.functionality.link, "Ptr", exp2, "Ptr", sqrt2, "Ptr", pow2, "Cdecl")
+		if (ErrorLevel || A_LastError) {
+			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError)
+		}
 	}
 	
 	;resizes the matrix
@@ -80,7 +70,7 @@ class Matrix {
 		}
 	}
 	
-		;this.values[x, y]
+	;this.values[x, y]
 	;	gets a single value of the matrix at the point x, y
 	;this.values[x, y] := value
 	;	sets a single value of the matrix at the point x, y
@@ -147,7 +137,7 @@ class Matrix {
 	;sigmoid()
 	;	applies the sigmoid function to all values in this matrix
 	;	the outputMatrix can be equal to this
-	;	it uses a Taylor Series to calculate e^x since external functions are not available in MCode
+	;	it uses the local msvcrt.dlls exp function to calculate e^x
 	sigmoid(outputMatrix := "") {
 		if (outputMatrix == "") {
 			outputMatrix := new Matrix(this.w, this.h)
@@ -315,8 +305,8 @@ class Matrix {
 	;	since order matters: this is the first operand in a matrix multiplication, matrix the second: (transpose(this) * matrix = outputMatrix)
 	;	size dependencies: 
 	;		the width of this should be equal to the width of matrix
-	;		the height of this should be equal to the width of the outputMatrix
-	;		the height of matrix should be equal to the height of the outputMatrix
+	;		the height of this should be equal to the height of the outputMatrix
+	;		the height of matrix should be equal to the width of the outputMatrix
 	;	in comparison to the normal multiply it is slightly faster (due to better caching and stuff) and also avoids transposing where it isnt neccessary
 	;	the output cannot be equal to either of the input matrices
 	multiplyTransposed(inputMatrix, outputMatrix := "") {
@@ -342,6 +332,38 @@ class Matrix {
 		return outputMatrix
 	}
 	
+	;multiplyTransposed2(matrix)
+	;	performs a matrix multiplication with a transposed matrix
+	;	since order matters: this is the first operand in a matrix multiplication, matrix the second: (this * transpose(matrix) = outputMatrix)
+	;	size dependencies: 
+	;		the height of this should be equal to the height of matrix
+	;		the width of this should be equal to the heihgt of the outputMatrix
+	;		the height of matrix should be equal to the width of the outputMatrix
+	;	in comparison to the normal multiply it avoids transposing where it isnt neccessary
+	;	the output cannot be equal to either of the input matrices
+	multiplyTransposed2(inputMatrix, outputMatrix := "") {
+		if !(inputMatrix.__Class == "Matrix") {
+			throw exception("invalid paramter expected a second matrix got: " inputMatrix . "instead", -1)
+		}
+		if (inputMatrix.w != this.w) {
+			throw exception("invalid width or height in parameter 1:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]", -1)
+		}
+		if (outputMatrix == "") {
+			outputMatrix := new Matrix(inputMatrix.h, this.h)
+		} else if !(outputMatrix.__Class == "Matrix"){
+			throw exception("invalid parameter expected an output matrix got: " . outputMatrix . "instead", -1)
+		} else if (outputMatrix.h != this.h || inputMatrix.w != outputMatrix.h) {
+			throw exception("invalid width or height in parameter 2:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]`nparameter2.size = [" . outputMatrix.w . ", " . outputMatrix.h . "]", -1)
+		} else if (outputMatrix == this || outputMatrix == inputMatrix) {
+			throw exception("output to input not implemented", -1)
+		}
+		DllCall(this.functionality.multiplyTransposed2, "Ptr", outputMatrix.ptr, "Ptr", this.ptr, "Ptr", inputMatrix.ptr, "Int", this.w, "Int", this.h, "Int", inputMatrix.h, "Cdecl")
+		if (ErrorLevel || A_LastError) {
+			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -1)
+		}
+		return outputMatrix
+	}
+	
 	;tranpose()
 	;	transposes the matrix
 	;	the outputMatrix cannot be equal to this
@@ -360,6 +382,24 @@ class Matrix {
 			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -1)
 		}
 		return outputMatrix
+	}
+	
+	;----------	OPERATIONS2
+	;The following operations dont result in a output matrix but rather return a direct value
+	;thus they dont have an outputMatrix parameter
+	
+	
+	;magnitude()
+	;	calculates the length of a vector
+	;	it multipolies all values by themselves then adds the seperate values up
+	;	and finally calculates the square root
+	;	while it is a calculation from vectors I have provided it for the general matrix class
+	magnitude() {
+		output := DllCall(this.functionality.magnitude, "Ptr", this.ptr, "Int", this.w, "Int", this.h, "cdecl double")
+		if (ErrorLevel || A_LastError) {
+			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -1)
+		}
+		return output
 	}
 	
 }

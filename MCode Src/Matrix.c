@@ -1,18 +1,22 @@
+double (*exp2)(double)  = 0;		//the exp function of the MSVCRT.dll
+double (*sqrt2)(double) = 0;		//the sqrt function of the MSVCRT.dll
+double (*pow2)(double,double)  = 0;	//the pow function of the MSVCRT.dll
+
+//needs to b called when initializing the library
+//links against the functions mentioned above
+//they can be found in msvcrt.dll
+void link(double (*pexp)(double), double (*psqrt)(double), double (*ppow)(double)) {
+	exp2  = pexp;
+	sqrt2 = psqrt;
+	pow2  = ppow;
+}
+
 //calculate the sigmoid of the values of the matrix mIn and put them into mOut
 //to use the same matrix for input and output you can set the input to the output
 void sigmoid(double* mOut, double* mIn, int w, int h) {
 	//using the tailor series to calculate e^x
 	for (int i =0; i<w*h; i++) {
-		double x = mIn[i];
-		double result = x + 1;
-		double dividend = x;
-		double divisor = 1;
-		for (double i=2; i<66; i++) { //we could increase precision especially for larger x by increasing the limit here
-		//the effect is not major or neccessary though
-			dividend *= x;
-			divisor *= i;
-			result += dividend/divisor;
-		}
+		double result = exp2(mIn[i]);
 		mOut[i] = result/(result+1);
 	}
 }
@@ -87,6 +91,24 @@ void multiplyTransposed(double* mOut, double* m1, double* m2, int h, int w1, int
 	}
 }
 
+//performs a matrix multiplication on m1 and m2 and puts the result into mOut
+//unlike multiply it acts as if m2 was transposed - that avoids unneccessary transposing _ sadly it is slower than multiplyTransposed
+//requires a seperate output matrix
+//the parameter w describes the width of m1 and m2
+//the parameter h1 describes the height of m1 and the height of mOut
+//the parameter h2 describes the height of m2 and mOut
+void multiplyTransposed2(double* mOut, double* m1, double* m2, int w, int h1, int h2) {
+	for (int x=0; x<h1; x++) {
+		for (int y=0; y<h2; y++) {
+			double tmp = 0;
+			for (int i=0; i<w; i++) {
+				tmp += m1[i*h1+x]*m2[i*h2+y];
+			}
+			mOut[x*h1+y] = tmp;
+		}
+	}
+}
+
 //transposes the matrix mIn and puts the transposed matrix into mOut
 //requires a seperate output matrix
 void transpose(double* mOut, double* mIn, int w, int h) {
@@ -133,4 +155,14 @@ void resize(double* mOut, double* mIn, int oldW, int oldH, int newW, int newH) {
 			}
 		}
 	}
+}
+
+//calculates the magnitude of the entire matrix acting as if it were a single vector
+//uses the msvcrt.dlls pow and sqrt functions
+double magnitude(double *mIn, int w, int h) {
+	double sum = 0;
+	for (int i = 0; i<w*h; i++) {
+		sum += mIn[i]*mIn[i];
+	}
+	return sqrt2(sum);
 }
