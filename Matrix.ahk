@@ -74,13 +74,107 @@ class Matrix {
 	;this.values[x, y] := value
 	;	sets a single value of the matrix at the point x, y
 	;	x and y use 1 based counting
-	values[x, y] {
+	
+	;this.values[x]
+	;	gets the column with the index x of the matrix as an array
+	;this.values[x] := column_array
+	;	sets the column with the index x of the matrix to column_array
+	;	column_array needs to be an array with the same length as the column
+	
+	;this.values["", y]
+	;	gets the row with the index y of the matrix as an array
+	;this.values["", y] := row_array
+	;	sets the column with the index y of the matrix to row_array
+	;	row_array needs to be an array with the same length as the row
+	
+	;this.values
+	;	gets the entire matrix as a 2d array
+	;	the array is a list of all rows
+	;this.values := matrix_array
+	;	sets the entire matrix to the value of matrix_array
+	;	needs to be a list of rows
+	;	you need as many rows as the matrix high is
+	;	each row needs to be as wide as the array wide is
+	
+	values[x :="", y := ""] {
 		get {
-			return NumGet((this.ptr+(y-1+(x-1)*this.h)*8), "Double")
+			if (x=="") 
+			{
+				if (y=="") { 				;this.values
+					rows := []
+					While (A_Index <= this.h) {
+						rows.push(this.values["", A_Index])
+					}
+					return rows
+				} 
+				else if (y<=this.h && y>0)	;this.values["", y]
+				{
+					row := []
+					While (A_Index <= this.w)
+						row.push(This.values[A_Index, y])
+					return row
+				}
+				throw exception("invalid y parameter for values access: " y, -1)
+			} 
+			else if (x<=this.w && x>0)
+			{
+				if (y=="") {				;this.values[x]
+					column := []
+					While (A_Index <= this.h)
+						column.push(this.values[x, A_Index])
+					return column
+				} 
+				else if (y<=this.h && y>0)	;this.values[x, y]
+				{
+					return NumGet((this.ptr+(y-1+(x-1)*this.h)*8), "Double")
+				}
+				throw exception("invalid y parameter for values access: " y, -1)
+			}
+			throw exception("invalid x parameter for values access: " x, -1)
 		}
+		
 		set {
-			NumPut(value, this.ptr+(y-1+(x-1)*this.h)*8, "Double")
-			return NumGet(this.ptr+(y-1+(x-1)*this.h)*8, "Double")
+			if (x=="") 
+			{
+				if (y=="") {				;this.values := matrix_array
+					if (isObject(value) && value.length()=this.h) {
+						for each, row in value {
+							this.values["", A_Index] := row
+						}
+						return value
+					}
+					throw exception("tried assigning an invalid 2d array: " value, -1)
+				} 
+				else if (y<=this.h && y>0) 	;this.values["", y] := row_array
+				{
+					if (isObject(value) && value.length()=this.w) {
+						for each, val in value {
+							this.values[A_Index, y] := val
+						}
+						return value
+					}
+					throw exception("tried assigning an invalid row: " value, -1)
+				}
+				throw exception("invalid y parameter for values access: " y, -1)
+			} 
+			else if (x<=this.w && x>0) 
+			{
+				if (y=="") {				;this.values[x] := column_array
+					if (isObject(value) && value.length()=this.h) {
+						for each, val in value {
+							this.values[x, A_Index] := val
+						}
+					}
+					throw exception("tried assigning an invalid column: " value, -1)
+				} 
+				else if (y<=this.h && y>0) 	;this.values[x, y] := value
+				{
+					NumPut(value, this.ptr+(y-1+(x-1)*this.h)*8, "Double")
+					return NumGet((this.ptr+(y-1+(x-1)*this.h)*8), "Double")
+				}
+				throw exception("invalid y parameter for values access: " y, -1)
+			}
+			throw exception("invalid x parameter for values access: " x, -1)
 		}
 	}
 	
