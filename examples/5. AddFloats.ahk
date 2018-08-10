@@ -1,9 +1,14 @@
-﻿#Include ../Matrix.ahk
+﻿/*
+	This example also showcases how to add 2 matrices
+	However unlike the example before we will use floats instead of integers
+*/
+
+#Include ../Matrix.ahk
 m1 := new Matrix(3, 3) ;create a new matrix and store it in m1
-m1.fillRandom()  ;fill m1 with random integers from -1 to 1
+m1.fillRandom(0.0, 100.0)  ;fill m1 with random floats from 0 to 100
 
 m2 := new Matrix(3, 3) ;create a second matrix and store it in m2
-m2.fillRandom()  ;fill m2 with random floats from -1 to 1
+m2.fillRandom(0.0, 100.0)  ;fill m2 with random floats from 0 to 100
 
 additionResult := m1.add(m2) ;add m2 to m1 and put the result into additionalResult
 ;the result is a new seperate matrix

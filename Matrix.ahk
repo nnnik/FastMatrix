@@ -9,6 +9,7 @@ class Matrix {
 	#Include %A_LineFile%/../MatrixMCode.ahk
 	
 	binary	:= ""
+	bKey		:= "binary"
 	w		:= 0
 	h		:= 0
 	
@@ -50,23 +51,6 @@ class Matrix {
 		;updates the width and height
 		this.w	:= w
 		this.h	:= h
-	}
-	
-	;gets the pointer of the binary
-	ptr[] {
-		get {
-			return this.getAddress("binary")
-		}
-	}
-	
-	;gets or sets the capacity of the binary
-	capacity[] {
-		get {
-			return this.GetCapacity("binary")
-		}
-		set {
-			return this.setCapacity("binary", value)
-		}
 	}
 	
 	;this.values[x, y]
@@ -369,7 +353,7 @@ class Matrix {
 	;		the height of this should be equal to the width of matrix
 	;		the width of this should be equal to the width of the outputMatrix
 	;		the height of matrix should be equal to the height of the outputMatrix
-	;	the output cannot be equal to either of the input matrices
+	;	the output can be equal to either input
 	multiply(inputMatrix, outputMatrix := "") {
 		if !(inputMatrix.__Class == "Matrix") {
 			throw exception("invalid paramter expected a second matrix got: " inputMatrix . "instead", -1)
@@ -383,13 +367,18 @@ class Matrix {
 			throw exception("invalid parameter expected an output matrix got: " . outputMatrix . "instead", -1)
 		} else if (outputMatrix.h != this.h || inputMatrix.w != outputMatrix.w) {
 			throw exception("invalid width or height in parameter 2:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]`nparameter2.size = [" . outputMatrix.w . ", " . outputMatrix.h . "]", -1)
-		} else if (outputMatrix == this || outputMatrix == inputMatrix) {
-			throw exception("output to input not implemented", -1)
 		}
-		DllCall(this.functionality.multiply, "Ptr", outputMatrix.ptr, "Ptr", this.ptr, "Ptr", inputMatrix.ptr, "Int", this.w, "Int", inputMatrix.w, "Int",  this.h, "Cdecl")
-		if (ErrorLevel || A_LastError) {
+		
+		p1 := this.ptr			;store the pointers of the input matrices
+		p2 := inputMatrix.ptr	;in case they get changed by the following line
+		if (outputMatrix = this || outputMatrix = inputMatrix) {
+			outputMatrix.writeToSelf()	;changes the pointer to a secondary binary buffer allowing the matrix to write to it
+			;while maintaining the old data from the input pointers
+		}
+		
+		DllCall(this.functionality.multiply, "Ptr", outputMatrix.ptr, "Ptr", p1, "Ptr", p2, "Int", this.w, "Int", inputMatrix.w, "Int",  this.h, "Cdecl")
+		if (ErrorLevel || A_LastError)
 			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -1)
-		}
 		return outputMatrix
 	}
 	
@@ -401,7 +390,7 @@ class Matrix {
 	;		the height of this should be equal to the height of the outputMatrix
 	;		the height of matrix should be equal to the width of the outputMatrix
 	;	in comparison to the normal multiply it is slightly faster (due to better caching and stuff) and also avoids transposing where it isnt neccessary
-	;	the output cannot be equal to either of the input matrices
+	;	the output can be equal to either input
 	multiplyTransposed(inputMatrix, outputMatrix := "") {
 		if !(inputMatrix.__Class == "Matrix") {
 			throw exception("invalid paramter expected a second matrix got: " inputMatrix . "instead", -1)
@@ -415,15 +404,23 @@ class Matrix {
 			throw exception("invalid parameter expected an output matrix got: " . outputMatrix . "instead", -1)
 		} else if (outputMatrix.h != this.w || inputMatrix.w != outputMatrix.w) {
 			throw exception("invalid width or height in parameter 2:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]`nparameter2.size = [" . outputMatrix.w . ", " . outputMatrix.h . "]", -1)
-		} else if (outputMatrix == this || outputMatrix == inputMatrix) {
-			throw exception("output to input not implemented", -1)
 		}
-		DllCall(this.functionality.multiplyTransposed, "Ptr", outputMatrix.ptr, "Ptr", this.ptr, "Ptr", inputMatrix.ptr, "Int", this.h, "Int", this.w, "Int", inputMatrix.w, "Cdecl")
+		
+		p1 := this.ptr			;store the pointers of the input matrices
+		p2 := inputMatrix.ptr	;in case they get changed by the following line
+		if (outputMatrix = this || outputMatrix = inputMatrix) {
+			outputMatrix.writeToSelf()	;changes the pointer to a secondary binary buffer allowing the matrix to write to it
+			;while maintaining the old data from the input pointers
+		} 
+		
+		DllCall(this.functionality.multiplyTransposed, "Ptr", outputMatrix.ptr, "Ptr", p1, "Ptr", p2, "Int", this.h, "Int", this.w, "Int", inputMatrix.w, "Cdecl")
 		if (ErrorLevel || A_LastError) {
-			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -1)
+			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -2)
 		}
 		return outputMatrix
 	}
+	
+	
 	
 	;multiplyTransposed2(matrix)
 	;	performs a matrix multiplication with a transposed matrix
@@ -433,7 +430,7 @@ class Matrix {
 	;		the width of this should be equal to the heihgt of the outputMatrix
 	;		the height of matrix should be equal to the width of the outputMatrix
 	;	in comparison to the normal multiply it avoids transposing where it isnt neccessary
-	;	the output cannot be equal to either of the input matrices
+	;	the output can be equal to either input
 	multiplyTransposed2(inputMatrix, outputMatrix := "") {
 		if !(inputMatrix.__Class == "Matrix") {
 			throw exception("invalid paramter expected a second matrix got: " inputMatrix . "instead", -1)
@@ -443,14 +440,20 @@ class Matrix {
 		}
 		if (outputMatrix == "") {
 			outputMatrix := new Matrix(inputMatrix.h, this.h)
-		} else if !(outputMatrix.__Class == "Matrix"){
+		} else if !(outputMatrix.__Class == "Matrix") {
 			throw exception("invalid parameter expected an output matrix got: " . outputMatrix . "instead", -1)
 		} else if (outputMatrix.h != this.h || inputMatrix.w != outputMatrix.h) {
 			throw exception("invalid width or height in parameter 2:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]`nparameter2.size = [" . outputMatrix.w . ", " . outputMatrix.h . "]", -1)
-		} else if (outputMatrix == this || outputMatrix == inputMatrix) {
-			throw exception("output to input not implemented", -1)
 		}
-		DllCall(this.functionality.multiplyTransposed2, "Ptr", outputMatrix.ptr, "Ptr", this.ptr, "Ptr", inputMatrix.ptr, "Int", this.w, "Int", this.h, "Int", inputMatrix.h, "Cdecl")
+		
+		p1 := this.ptr			;store the pointers of the input matrices
+		p2 := inputMatrix.ptr	;in case they get changed by the following line
+		if (outputMatrix = this || outputMatrix = inputMatrix) {
+			outputMatrix.writeToSelf()	;changes the pointer to a secondary binary buffer allowing the matrix to write to it
+			;while maintaining the old data from the input pointers
+		}
+		
+		DllCall(this.functionality.multiplyTransposed2, "Ptr", outputMatrix.ptr, "Ptr", p1, "Ptr", p2, "Int", this.h, "Int", this.w, "Int", inputMatrix.h, "Cdecl")
 		if (ErrorLevel || A_LastError) {
 			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -1)
 		}
@@ -459,7 +462,7 @@ class Matrix {
 	
 	;tranpose()
 	;	transposes the matrix
-	;	the outputMatrix cannot be equal to this
+	;	the output can be equal to this
 	transpose(outputMatrix := "") {
 		if (outputMatrix == "") {
 			outputMatrix := new Matrix(this.h, this.w)
@@ -467,15 +470,20 @@ class Matrix {
 			throw exception("invalid parameter expected an output matrix got: " . outputMatrix . "instead", -1)
 		} else if (outputMatrix.h != this.h || this.w != outputMatrix.w) {
 			throw exception("invalid width or height in parameter 1:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]", -1)
-		} else if (outputMatrix == this) {
-			throw exception("output to input not implemented", -1)
 		}
-		DllCall(this.functionality.transpose, "Ptr", outputMatrix.ptr, "Ptr", this.ptr, "Int", this.w, "Int", this.h, "Cdecl")
+		
+		p := this.ptr			;store the pointer
+		if (outputMatrix = this) {
+			this.writeToSelf() 	;in case it gets changed
+		}
+		
+		DllCall(this.functionality.transpose, "Ptr", outputMatrix.ptr, "Ptr", p, "Int", this.w, "Int", this.h, "Cdecl")
 		if (ErrorLevel || A_LastError) {
 			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -1)
 		}
 		return outputMatrix
 	}
+	
 	
 	;----------	OPERATIONS2
 	;The following operations dont result in a output matrix but rather return a direct value
@@ -493,6 +501,34 @@ class Matrix {
 			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError, -1)
 		}
 		return output
+	}
+	
+	
+	;----------	HELPER STUFF
+	;The following properties and methods are subject to constant change
+	;They also will not be documented - do not use them in your scripts
+	;When I see someone using them I might just change their behaviour just to make this point
+	
+	ptr[] {
+		get {
+			return ObjGetAddress(this, this.bKey)
+		}
+	}
+	
+	capacity[] {
+		get {
+			return ObjGetCapacity(this, this.bKey)
+		}
+		set {
+			return ObjSetCapacity(this, this.bKey, value)
+		}
+	}
+	
+	writeToSelf() {
+		sKey := (this.bKey == "binary")?"binary2":"binary"
+		if (ObjGetCapacity(this, sKey)<(cap := this.w*this.h*8))
+			ObjSetCapacity(this, sKey, cap)
+		this.bKey := sKey
 	}
 	
 }

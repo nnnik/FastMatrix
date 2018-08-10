@@ -1,4 +1,10 @@
-﻿#Include ../Matrix.ahk
+﻿/*
+	This example performs a few multiplications using the 3 matrix multiplication methods
+	it shows: multiply, multiplyTransposed, multiplyTransposed2
+*/
+
+
+#Include ../Matrix.ahk
 m1 := new Matrix(2, 3), m1.fillRandom(1, 9) ;create a matrix m1 with the size 2, 3 and fill it with random integers from 1 to 9
 m2 := new Matrix(3, 2), m2.fillRandom(1, 9) ;create a matrix m2 with the size 3, 2 and fill it with random integers from 1 to 9
 m3 := new Matrix(2, 2), m3.fillRandom(1, 9) ;create a matrix m3 with the size 2, 2 and fill it with random integers from 1 to 9
