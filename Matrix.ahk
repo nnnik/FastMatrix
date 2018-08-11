@@ -9,6 +9,7 @@ class Matrix {
 	#Include %A_LineFile%/../MatrixMCode.ahk
 	
 	binary	:= ""
+	binary2	:= ""
 	bKey		:= "binary"
 	w		:= 0
 	h		:= 0
@@ -18,19 +19,6 @@ class Matrix {
 	__New(w := "", h := "") {
 		this._init()
 		this.resize(w, h, true)
-	}
-	
-	_init() {
-		static init := 0
-		if init
-			return
-		hDLL := DllCall("LoadLibrary", "Str", "msvcrt.dll", "Ptr")
-		exp2  := DllCall("GetProcAddress", "Ptr", hDLL, "AStr", "exp", "Ptr")
-		sqrt2 := DllCall("GetProcAddress", "Ptr", hDLL, "AStr", "sqrt", "Ptr")
-		DllCall(this.functionality.link, "Ptr", exp2, "Ptr", sqrt2, "Cdecl")
-		if (ErrorLevel || A_LastError) {
-			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError)
-		}
 	}
 	
 	;resizes the matrix
@@ -531,4 +519,16 @@ class Matrix {
 		this.bKey := sKey
 	}
 	
+	_init() {
+		static init := 0
+		if init
+			return
+		hDLL := DllCall("LoadLibrary", "Str", "msvcrt.dll", "Ptr")
+		exp2  := DllCall("GetProcAddress", "Ptr", hDLL, "AStr", "exp", "Ptr")
+		sqrt2 := DllCall("GetProcAddress", "Ptr", hDLL, "AStr", "sqrt", "Ptr")
+		DllCall(this.functionality.link, "Ptr", exp2, "Ptr", sqrt2, "Cdecl")
+		if (ErrorLevel || A_LastError) {
+			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError)
+		}
+	}
 }
