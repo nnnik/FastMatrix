@@ -456,7 +456,7 @@ class Matrix {
 			outputMatrix := new Matrix(this.h, this.w)
 		} else if !(outputMatrix.__Class == "Matrix"){
 			throw exception("invalid parameter expected an output matrix got: " . outputMatrix . "instead", -1)
-		} else if (outputMatrix.h != this.h || this.w != outputMatrix.w) {
+		} else if (outputMatrix.w != this.h || this.w != outputMatrix.h) {
 			throw exception("invalid width or height in parameter 1:`nthis.size = [" . this.w . ", " . this.h . "]`nparameter1.size = [" . inputMatrix.w . ", " . inputMatrix.h . "]", -1)
 		}
 		
