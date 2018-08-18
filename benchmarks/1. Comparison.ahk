@@ -37,6 +37,8 @@
 SetWorkingDir, %A_ScriptDir%
 
 #Include ../Matrix.ahk
+if !inStr(fileExist(SubStr(A_ScriptName, 1, -4)), "d")
+	FileCreateDir, % SubStr(A_ScriptName, 1, -4)
 
 fileName := SubStr(A_ScriptName, 1, -4) . "/AHK " . A_AhkVersion . " " . (A_PtrSize*8) . " " . (A_IsUnicode?"U":"A") . " FastMatrix " . Matrix.getVersion() ".log"
 

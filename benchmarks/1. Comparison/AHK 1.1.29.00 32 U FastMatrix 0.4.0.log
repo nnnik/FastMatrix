@@ -1,0 +1,24 @@
+Comparing an old matrix library with the fast matrix library
+Using a multiplication of 10000 vectors by a matrix
+|	vector dimensions	|	fastMatrix	|	native AHK	|
+---------------------------------------------------------
+|	1 dimensions		|	828ms		|	343ms		|
+|	2 dimensions		|	844ms		|	672ms		|
+|	3 dimensions		|	844ms		|	1156ms		|
+|	4 dimensions		|	843ms		|	1797ms		|
+|	5 dimensions		|	844ms		|	2609ms		|
+|	6 dimensions		|	828ms		|	3562ms		|
+|	7 dimensions		|	813ms		|	4718ms		|
+|	8 dimensions		|	859ms		|	5984ms		|
+|	9 dimensions		|	890ms		|	7485ms		|
+|	10 dimensions		|	875ms		|	9078ms		|
+|	11 dimensions		|	921ms		|	10875ms		|
+|	12 dimensions		|	890ms		|	12812ms		|
+|	13 dimensions		|	906ms		|	15032ms		|
+|	14 dimensions		|	922ms		|	17219ms		|
+|	15 dimensions		|	969ms		|	19688ms		|
+|	16 dimensions		|	922ms		|	22281ms		|
+|	17 dimensions		|	875ms		|	25032ms		|
+|	18 dimensions		|	875ms		|	28031ms		|
+|	19 dimensions		|	922ms		|	31078ms		|
+|	20 dimensions		|	937ms		|	35516ms		|
