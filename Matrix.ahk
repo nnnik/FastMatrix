@@ -493,9 +493,25 @@ class Matrix {
 	
 	
 	;----------	HELPER STUFF
-	;The following properties and methods are subject to constant change
+	;The following properties and methods are subject to constant change or are not released yet
 	;They also will not be documented - do not use them in your scripts
 	;When I see someone using them I might just change their behaviour just to make this point
+	
+	getSize() {
+		return [this.getWidth(), this.getHeight()]
+	}
+	
+	getWidth() {
+		return this.w
+	}
+	
+	getHeight() {
+		return this.h
+	}
+	
+	getVersion() {
+		return "0.4.0"
+	}
 	
 	ptr[] {
 		get {
@@ -523,9 +539,17 @@ class Matrix {
 		static init := 0
 		if init
 			return
+		if (A_LastError)
+			DllCall("SetLastError", "UInt", 0)
 		hDLL := DllCall("LoadLibrary", "Str", "msvcrt.dll", "Ptr")
+		if (!hDLL || A_LastError || ErrorLevel)
+			throw exception("Error when loading msvcrt.dll:`nErrorLevel:" . ErrorLevel . "`nA_LastError:" . A_LastError, -1)
 		exp2  := DllCall("GetProcAddress", "Ptr", hDLL, "AStr", "exp", "Ptr")
+		if (!exp2 || A_LastError || ErrorLevel)
+			throw exception("Error when loading exp function from msvcrt.dll:`nErrorLevel:" . ErrorLevel . "`nA_LastError:" . A_LastError, -1)
 		sqrt2 := DllCall("GetProcAddress", "Ptr", hDLL, "AStr", "sqrt", "Ptr")
+		if (!sqrt2 || A_LastError || ErrorLevel)
+			throw exception("Error when loading sqrt function from msvcrt.dll:`nErrorLevel:" . ErrorLevel . "`nA_LastError:" . A_LastError, -1)
 		DllCall(this.functionality.link, "Ptr", exp2, "Ptr", sqrt2, "Cdecl")
 		if (ErrorLevel || A_LastError) {
 			throw exception("Error in DllCall:`nErrorLevel: `t" . ErrorLevel . "`nA_LastError: `t" . A_LastError)
