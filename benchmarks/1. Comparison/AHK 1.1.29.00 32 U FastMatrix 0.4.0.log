@@ -2,23 +2,23 @@ Comparing an old matrix library with the fast matrix library
 Using a multiplication of 10000 vectors by a matrix
 |	vector dimensions	|	fastMatrix	|	native AHK	|
 ---------------------------------------------------------
-|	1 dimensions		|	828ms		|	343ms		|
-|	2 dimensions		|	844ms		|	672ms		|
-|	3 dimensions		|	844ms		|	1156ms		|
-|	4 dimensions		|	843ms		|	1797ms		|
-|	5 dimensions		|	844ms		|	2609ms		|
-|	6 dimensions		|	828ms		|	3562ms		|
-|	7 dimensions		|	813ms		|	4718ms		|
-|	8 dimensions		|	859ms		|	5984ms		|
-|	9 dimensions		|	890ms		|	7485ms		|
-|	10 dimensions		|	875ms		|	9078ms		|
-|	11 dimensions		|	921ms		|	10875ms		|
-|	12 dimensions		|	890ms		|	12812ms		|
-|	13 dimensions		|	906ms		|	15032ms		|
-|	14 dimensions		|	922ms		|	17219ms		|
-|	15 dimensions		|	969ms		|	19688ms		|
-|	16 dimensions		|	922ms		|	22281ms		|
-|	17 dimensions		|	875ms		|	25032ms		|
-|	18 dimensions		|	875ms		|	28031ms		|
-|	19 dimensions		|	922ms		|	31078ms		|
-|	20 dimensions		|	937ms		|	35516ms		|
+|	1 dimensions		|	829ms		|	338ms		|
+|	2 dimensions		|	807ms		|	666ms		|
+|	3 dimensions		|	804ms		|	1130ms		|
+|	4 dimensions		|	827ms		|	1768ms		|
+|	5 dimensions		|	812ms		|	2566ms		|
+|	6 dimensions		|	821ms		|	3519ms		|
+|	7 dimensions		|	854ms		|	4635ms		|
+|	8 dimensions		|	845ms		|	5914ms		|
+|	9 dimensions		|	863ms		|	7374ms		|
+|	10 dimensions		|	922ms		|	9002ms		|
+|	11 dimensions		|	937ms		|	10770ms		|
+|	12 dimensions		|	926ms		|	12653ms		|
+|	13 dimensions		|	894ms		|	14731ms		|
+|	14 dimensions		|	949ms		|	16983ms		|
+|	15 dimensions		|	897ms		|	19397ms		|
+|	16 dimensions		|	932ms		|	21950ms		|
+|	17 dimensions		|	989ms		|	24763ms		|
+|	18 dimensions		|	915ms		|	27835ms		|
+|	19 dimensions		|	956ms		|	30769ms		|
+|	20 dimensions		|	908ms		|	34023ms		|

@@ -34,7 +34,10 @@
 
 #NoTrayIcon
 #NoEnv
+#KeyHistory 0
 SetWorkingDir, %A_ScriptDir%
+DllCall( "QueryPerformanceFrequency", "Int64*", f)
+f := f / 1000
 
 #Include ../Matrix.ahk
 if !inStr(fileExist(SubStr(A_ScriptName, 1, -4)), "d")
@@ -70,15 +73,17 @@ Loop %d% {
 	
 	Thread,  Priority, 2147483647
 	Process, Priority,, R
-	t := A_TickCount
+	ListLines Off
+	DllCall("QueryPerformanceCounter", "Int64*", s)
 	Loop 10
 		for each, vector in vectors				;and now apply the rotation to each one
 			vectors[each] := m1.multiply(vector, vector)			;multiply and put the result into vector - which just remains inside the array
-	f := A_TickCount
+	DllCall("QueryPerformanceCounter", "Int64*", e)
 	Thread,  Priority, 0
 	Process, Priority,, N
+	ListLines On
 	
-	fOut.write("|`t" . (f-t) . "ms`t`t")
+	fOut.write("|`t" . Round((e-s)/f) . "ms`t`t")
 	
 	MATRIX_A := CREATE_OLD_MATRIX(size, size)
 	Loop %size% {
@@ -97,17 +102,19 @@ Loop %d% {
 	}
 	Thread,  Priority, 2147483647
 	Process, Priority,, R
-	t := A_TickCount
+	ListLines Off
+	DllCall("QueryPerformanceCounter", "Int64*", s)
 	Loop 10 {
 		for each, vector in vectors2 {				;and now apply the rotation to each one
 			vectors2[each] := MULTIPLY_OLD_MATRIX_VECTOR(MATRIX_A, vector)	;multiply and put the result into vector - which just remains inside the array
 		}
 	}
-	f := A_TickCount
+	DllCall("QueryPerformanceCounter", "Int64*", e)
+	ListLines On
 	Thread,  Priority, 0
 	Process, Priority,, N
 	
-	fOut.writeLine("|`t" . (f-t) . "ms`t`t|")
+	fOut.writeLine("|`t" . Round((e-s)/f) . "ms`t`t|")
 }
 fOut.close()
 fOut := ""
